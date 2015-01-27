@@ -3,11 +3,11 @@ package com.github.mnogu.gatling.kafka.action
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import com.github.mnogu.gatling.kafka.config.KafkaProtocol
+import com.github.mnogu.gatling.kafka.request.builder.KafkaAttributes
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.Protocols
-import io.gatling.core.session.Expression
 
-class KafkaRequestActionBuilder(requestName: Expression[String])
+class KafkaRequestActionBuilder(kafkaAttributes: KafkaAttributes)
   extends ActionBuilder {
 
   override def registerDefaultProtocols(protocols: Protocols): Protocols =
@@ -16,6 +16,6 @@ class KafkaRequestActionBuilder(requestName: Expression[String])
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val kafkaProtocol = protocols.getProtocol[KafkaProtocol].getOrElse(
       throw new UnsupportedOperationException("Kafka Protocol wasn't registered"))
-    actor(actorName("kafkaRequest"))(new KafkaRequestAction(requestName, kafkaProtocol, next))
+    actor(actorName("kafkaRequest"))(new KafkaRequestAction(kafkaAttributes, kafkaProtocol, next))
   }
 }

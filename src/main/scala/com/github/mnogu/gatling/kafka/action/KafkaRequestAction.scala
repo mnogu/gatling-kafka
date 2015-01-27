@@ -1,9 +1,8 @@
 package com.github.mnogu.gatling.kafka.action
 
-import java.util.Date
-
 import akka.actor.ActorRef
 import com.github.mnogu.gatling.kafka.config.KafkaProtocol
+import com.github.mnogu.gatling.kafka.request.builder.KafkaAttributes
 import io.gatling.core.action.{Failable, Interruptable}
 import io.gatling.core.result.message.{KO, OK}
 import io.gatling.core.result.writer.DataWriterClient
@@ -16,42 +15,23 @@ import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 class KafkaRequestAction(
-  val requestName: Expression[String],
+  val kafkaAttributes: KafkaAttributes,
   val kafkaProtocol: KafkaProtocol,
   val next: ActorRef)
   extends Interruptable with Failable with DataWriterClient {
 
   def executeOrFail(session: Session): Validation[Unit] =
-    requestName(session).map { resolvedRequestName =>
-      sendRequest(resolvedRequestName, session)
-    }
-
-  private def sendRequest(requestName: String, session: Session): Unit = {
-    // send the request
-    val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
-
-    val callback = new Callback() {
-      def onCompletion(metadata: RecordMetadata, e: Exception): Unit = {
-        if (e != null) {
-          // log the outcome
-          val now = nowMillis
-          writeRequestData(
-            session,
-            requestName,
-            now,
-            now,
-            now,
-            now,
-            KO,
-            Some(e.toString))
-        }
+    kafkaAttributes.requestName(session).map { resolvedRequestName =>
+      kafkaAttributes.payload(session).map { resolvedPayload =>
+        sendRequest(resolvedRequestName, resolvedPayload, session)
       }
     }
 
-    // TODO: Don't hard-code payload
-    val payload = new Date(nowMillis).toString.getBytes
+  private def sendRequest(requestName: String, payload: String, session: Session): Unit = {
+    // send the request
+    val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
 
-    val record = new ProducerRecord(kafkaProtocol.topic, payload)
+    val record = new ProducerRecord(kafkaProtocol.topic, payload.getBytes)
 
     // retrieve the response
     val requestStartDate = nowMillis

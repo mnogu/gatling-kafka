@@ -14,7 +14,13 @@ class BasicSimulation extends Simulation {
         ProducerConfig.ACKS_CONFIG -> "1",
         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG ->  "localhost:9092"))
 
-  val scn = scenario("Kafka Test").exec(kafka("request"))
+  val scn = scenario("Kafka Test")
+    .exec(kafka("request").send("foo"))
+  // You can also use feeder
+  //
+  //val scn = scenario("Kafka Test")
+  //  .feed(csv("test.csv").circular)
+  //  .exec(kafka("request").send("${foo}"))
 
   setUp(
     scn
