@@ -20,5 +20,4 @@ class BasicSimulation extends Simulation {
     scn
       .inject(constantUsersPerSec(10) during(90 seconds)))
     .protocols(kafkaConf)
-    .throttle(reachRps(10) in (10 seconds), holdFor((10 + 90) seconds))
 }
