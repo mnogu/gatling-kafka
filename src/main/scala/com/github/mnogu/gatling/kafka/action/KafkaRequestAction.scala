@@ -1,6 +1,7 @@
 package com.github.mnogu.gatling.kafka.action
 
 import akka.actor.ActorRef
+
 import com.github.mnogu.gatling.kafka.config.KafkaProtocol
 import com.github.mnogu.gatling.kafka.request.builder.KafkaAttributes
 import io.gatling.core.action.{Failable, Interruptable}
@@ -12,7 +13,17 @@ import io.gatling.core.validation.Validation
 import org.apache.kafka.clients.producer._
 
 import scala.collection.JavaConverters._
-import scala.util.control.NonFatal
+
+object KafkaRequestAction extends DataWriterClient {
+  def reportUnbuildableRequest(
+      requestName: String,
+      session: Session,
+      errorMessage: String): Unit = {
+    val now = nowMillis
+    writeRequestData(
+      session, requestName, now, now, now, now, KO, Some(errorMessage))
+  }
+}
 
 class KafkaRequestAction(
   val kafkaAttributes: KafkaAttributes,
@@ -21,59 +32,49 @@ class KafkaRequestAction(
   extends Interruptable with Failable with DataWriterClient {
 
   def executeOrFail(session: Session): Validation[Unit] =
-    kafkaAttributes.requestName(session).map { resolvedRequestName =>
-      kafkaAttributes.payload(session).map { resolvedPayload =>
-        sendRequest(resolvedRequestName, resolvedPayload, session)
-      }
+    kafkaAttributes.requestName(session).flatMap { resolvedRequestName =>
+
+      val outcome = sendRequest(
+        resolvedRequestName, kafkaAttributes.payload, session)
+      outcome.onFailure(
+        errorMessage => KafkaRequestAction.reportUnbuildableRequest(
+          resolvedRequestName, session, errorMessage))
+      outcome
     }
 
-  private def sendRequest(requestName: String, payload: String, session: Session): Unit = {
-    val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
-    val record = new ProducerRecord(kafkaProtocol.topic, payload.getBytes)
+  private def sendRequest(
+      requestName: String,
+      payload: Expression[String],
+      session: Session): Validation[Unit] = {
 
-    val requestStartDate = nowMillis
-    val requestEndDate = nowMillis
-    // send the request
-    val future = producer.send(record)
+    payload(session).map { resolvedPayload =>
+      val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
+      val record = new ProducerRecord(
+        kafkaProtocol.topic, resolvedPayload.getBytes)
 
-    val responseStartDate = nowMillis
-    try {
-      // retrieve the response
+      val requestStartDate = nowMillis
+      val requestEndDate = nowMillis
+      // send the request
+      val future = producer.send(record)
+
+      val responseStartDate = nowMillis
       future.get
-    } catch {
-      case NonFatal(exc) =>
-        val responseEndDate = nowMillis
-        producer.close()
-        // log the outcome
-        writeRequestData(
-          session,
-          requestName,
-          requestStartDate,
-          requestEndDate,
-          responseStartDate,
-          responseEndDate,
-          KO,
-          Some(exc.getMessage))
+      val responseEndDate = nowMillis
+      producer.close()
 
-        // calling the next action in the chain
-        next ! session
-        return
+      // log the outcome
+      writeRequestData(
+        session,
+        requestName,
+        requestStartDate,
+        requestEndDate,
+        responseStartDate,
+        responseEndDate,
+        OK
+      )
+
+      // calling the next action in the chain
+      next ! session
     }
-    val responseEndDate = nowMillis
-    producer.close()
-
-    // log the outcome
-    writeRequestData(
-      session,
-      requestName,
-      requestStartDate,
-      requestEndDate,
-      responseStartDate,
-      responseEndDate,
-      OK
-    )
-
-    // calling the next action in the chain
-    next ! session
   }
 }
