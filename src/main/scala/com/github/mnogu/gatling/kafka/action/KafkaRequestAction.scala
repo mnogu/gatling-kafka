@@ -28,18 +28,17 @@ class KafkaRequestAction(
     }
 
   private def sendRequest(requestName: String, payload: String, session: Session): Unit = {
-    // send the request
     val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
-
     val record = new ProducerRecord(kafkaProtocol.topic, payload.getBytes)
 
-    // retrieve the response
     val requestStartDate = nowMillis
     val requestEndDate = nowMillis
+    // send the request
     val future = producer.send(record)
 
     val responseStartDate = nowMillis
     try {
+      // retrieve the response
       future.get
     } catch {
       case NonFatal(exc) =>
@@ -56,16 +55,12 @@ class KafkaRequestAction(
           KO,
           Some(exc.getMessage))
 
+        // calling the next action in the chain
         next ! session
         return
     }
     val responseEndDate = nowMillis
     producer.close()
-
-    // perform checks on the response (optional)
-
-    // save elements from the checks into the session for further usage
-    // (optional)
 
     // log the outcome
     writeRequestData(
@@ -78,6 +73,7 @@ class KafkaRequestAction(
       OK
     )
 
+    // calling the next action in the chain
     next ! session
   }
 }
