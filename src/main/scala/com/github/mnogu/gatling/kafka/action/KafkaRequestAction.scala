@@ -54,24 +54,26 @@ class KafkaRequestAction(
 
       val requestStartDate = nowMillis
       val requestEndDate = nowMillis
+
       // send the request
-      val future = producer.send(record)
+      producer.send(record, new Callback() {
+        override def onCompletion(m: RecordMetadata, e: Exception): Unit = {
+          val responseStartDate = nowMillis
+          val responseEndDate = nowMillis
 
-      val responseStartDate = nowMillis
-      future.get
-      val responseEndDate = nowMillis
-      producer.close()
+          // log the outcome
+          writeRequestData(
+            session,
+            requestName,
+            requestStartDate,
+            requestEndDate,
+            responseStartDate,
+            responseEndDate,
+            if (e == null) OK else KO)
 
-      // log the outcome
-      writeRequestData(
-        session,
-        requestName,
-        requestStartDate,
-        requestEndDate,
-        responseStartDate,
-        responseEndDate,
-        OK
-      )
+          producer.close()
+        }
+      })
 
       // calling the next action in the chain
       next ! session
