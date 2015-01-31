@@ -12,8 +12,6 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 import org.apache.kafka.clients.producer._
 
-import scala.collection.JavaConverters._
-
 object KafkaRequestAction extends DataWriterClient {
   def reportUnbuildableRequest(
       requestName: String,
@@ -26,29 +24,31 @@ object KafkaRequestAction extends DataWriterClient {
 }
 
 class KafkaRequestAction(
+  val producer: KafkaProducer,
   val kafkaAttributes: KafkaAttributes,
   val kafkaProtocol: KafkaProtocol,
   val next: ActorRef)
   extends Interruptable with Failable with DataWriterClient {
 
-  def executeOrFail(session: Session): Validation[Unit] =
+  def executeOrFail(session: Session): Validation[Unit] = {
     kafkaAttributes.requestName(session).flatMap { resolvedRequestName =>
 
       val outcome = sendRequest(
-        resolvedRequestName, kafkaAttributes.payload, session)
+        resolvedRequestName, producer, kafkaAttributes.payload, session)
       outcome.onFailure(
         errorMessage => KafkaRequestAction.reportUnbuildableRequest(
           resolvedRequestName, session, errorMessage))
       outcome
     }
+  }
 
   private def sendRequest(
       requestName: String,
+      producer: Producer,
       payload: Expression[String],
       session: Session): Validation[Unit] = {
 
     payload(session).map { resolvedPayload =>
-      val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
       val record = new ProducerRecord(
         kafkaProtocol.topic, resolvedPayload.getBytes)
 
@@ -70,8 +70,6 @@ class KafkaRequestAction(
             responseStartDate,
             responseEndDate,
             if (e == null) OK else KO)
-
-          producer.close()
         }
       })
 

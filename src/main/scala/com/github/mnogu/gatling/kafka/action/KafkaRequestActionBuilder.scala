@@ -6,6 +6,9 @@ import com.github.mnogu.gatling.kafka.config.KafkaProtocol
 import com.github.mnogu.gatling.kafka.request.builder.KafkaAttributes
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.Protocols
+import org.apache.kafka.clients.producer.KafkaProducer
+
+import scala.collection.JavaConverters._
 
 class KafkaRequestActionBuilder(kafkaAttributes: KafkaAttributes)
   extends ActionBuilder {
@@ -16,6 +19,8 @@ class KafkaRequestActionBuilder(kafkaAttributes: KafkaAttributes)
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val kafkaProtocol = protocols.getProtocol[KafkaProtocol].getOrElse(
       throw new UnsupportedOperationException("Kafka Protocol wasn't registered"))
-    actor(actorName("kafkaRequest"))(new KafkaRequestAction(kafkaAttributes, kafkaProtocol, next))
+    val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
+    actor(actorName("kafkaRequest"))(new KafkaRequestAction(
+      producer, kafkaAttributes, kafkaProtocol, next))
   }
 }
