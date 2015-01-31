@@ -1,6 +1,6 @@
-name := "GatlingKafka"
+name := "gatling-kafka"
 
-version := "1.0"
+version := "0.0.5-SNAPSHOT"
 
 scalaVersion := "2.11.5"
 
