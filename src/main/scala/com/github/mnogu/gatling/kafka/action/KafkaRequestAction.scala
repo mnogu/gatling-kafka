@@ -78,4 +78,9 @@ class KafkaRequestAction(
       next ! session
     }
   }
+
+  override def postStop(): Unit = {
+    super.postStop()
+    producer.close()
+  }
 }
