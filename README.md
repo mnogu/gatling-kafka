@@ -12,12 +12,12 @@ for [Apache Kafka](http://kafka.apache.org/) 0.8 protocol.
 
 ### Creating a jar file
 
-Install sbt if you don't have, and create a jar file:
+Install sbt if you don't have. And create a jar file:
 
     $ sbt assembly
 
 If you don't want to include kafka-clients library to the jar file,
-before running `sbt assembly`, change [`build.sbt`](build.sbt) from
+change [`build.sbt`](build.sbt) from
 
 ```scala
 ("org.apache.kafka" % "kafka-clients" % "0.8.2-beta")
@@ -28,6 +28,8 @@ to
 ```scala
 ("org.apache.kafka" % "kafka-clients" % "0.8.2-beta" % "provided")
 ```
+
+before running `sbt assembly`.
 
 ### Putting the jar file to lib directory
 
