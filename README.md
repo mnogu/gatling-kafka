@@ -1,6 +1,7 @@
 # Gatling-Kafka
 
-An unofficial Gatling stress test library for Apache Kafka 0.8 protocol.
+An unofficial [Gatling](http://gatling.io/) stress test library
+for [Apache Kafka](http://kafka.apache.org/) 0.8 protocol.
 
 ## Usage
 
