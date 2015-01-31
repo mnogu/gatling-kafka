@@ -11,4 +11,5 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" % "kafka-clients" % "0.8.2-beta"
 )
 
-scalacOptions += "-feature"
+// postfixOps is for DSL such as "90 seconds"
+scalacOptions += "-feature -language:postfixOps"
