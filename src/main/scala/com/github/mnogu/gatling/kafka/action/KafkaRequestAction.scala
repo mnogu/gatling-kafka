@@ -69,7 +69,8 @@ class KafkaRequestAction(
             requestEndDate,
             responseStartDate,
             responseEndDate,
-            if (e == null) OK else KO)
+            if (e == null) OK else KO,
+            if (e == null) None else Some(e.getMessage))
         }
       })
 
