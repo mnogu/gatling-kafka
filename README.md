@@ -12,7 +12,7 @@ for [Apache Kafka](http://kafka.apache.org/) 0.8 protocol.
 
 ### Creating a jar file
 
-Install sbt if you don't have and create a jar file:
+Install sbt if you don't have, and create a jar file:
 
     $ sbt assembly
 
@@ -26,6 +26,8 @@ to
     ("org.apache.kafka" % "kafka-clients" % "0.8.2-beta" % "provided")
 
 ### Putting the jar file to lib directory
+
+Put the jar file to `lib` directory in Gatling:
 
     $ cp target/scala-2.11/gatling-kafka-assembly-*.jar /path/to/gatling-charts-highcharts-bundle-2.1.3/lib
 
