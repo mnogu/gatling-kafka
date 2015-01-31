@@ -12,7 +12,7 @@ class BasicSimulation extends Simulation {
     .properties(
       Map(
         ProducerConfig.ACKS_CONFIG -> "1",
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG ->  "localhost:9092"))
+        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092"))
 
   val scn = scenario("Kafka Test")
     .exec(kafka("request").send("foo"))
