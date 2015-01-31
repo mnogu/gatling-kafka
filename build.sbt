@@ -5,11 +5,8 @@ version := "1.0"
 scalaVersion := "2.11.5"
 
 libraryDependencies ++= Seq(
-  "io.gatling" % "gatling-core" % "2.1.3",
+  "io.gatling" % "gatling-core" % "2.1.3" % "provided",
   // Gatling 2.1.3 depends on Scala 2.11
   // and Apache Kafka 0.8.1.1 doesn't support Scala 2.11
   "org.apache.kafka" % "kafka-clients" % "0.8.2-beta"
 )
-
-// postfixOps is for DSL such as "90 seconds"
-scalacOptions += "-feature -language:postfixOps"
