@@ -77,6 +77,8 @@ class KafkaSimulation extends Simulation {
 
 ### Running a stress test
 
+After starting Apache Kafka server, run a stress test:
+
     $ bin/gatling.sh
 
 
