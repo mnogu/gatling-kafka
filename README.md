@@ -20,7 +20,7 @@ Install sbt if you don't have. And create a jar file:
     $ sbt assembly
 
 If you don't want to include kafka-clients library to the jar file,
-change [`build.sbt`](build.sbt) from
+change a line on kafka-clients in [`build.sbt`](build.sbt) from
 
 ```scala
 ("org.apache.kafka" % "kafka-clients" % "0.8.2-beta")
