@@ -3,6 +3,9 @@
 An unofficial [Gatling](http://gatling.io/) stress test library
 for [Apache Kafka](http://kafka.apache.org/) 0.8 protocol.
 
+This library supports the Kafka producer API only
+and doesn't support the Kafka consumer API.
+
 ## Usage
 
 ### Cloning this repository
