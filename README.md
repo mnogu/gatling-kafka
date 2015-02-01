@@ -69,7 +69,7 @@ class KafkaSimulation extends Simulation {
     .properties(
       Map(
         ProducerConfig.ACKS_CONFIG -> "1",
-        // Kafka broker hostname and port number
+        // list of Kafka broker hostname and port pairs
         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092"))
 
   val scn = scenario("Kafka Test")
