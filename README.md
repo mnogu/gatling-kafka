@@ -63,14 +63,21 @@ import com.github.mnogu.gatling.kafka.Predef._
 
 class KafkaSimulation extends Simulation {
   val kafkaConf = kafka
+    // Kafka topic name
     .topic("test")
+    // Kafka producer configs
     .properties(
       Map(
         ProducerConfig.ACKS_CONFIG -> "1",
+        // Kafka broker hostname and port number
         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092"))
 
   val scn = scenario("Kafka Test")
-    .exec(kafka("request").send("foo"))
+    .exec(
+      kafka("request")
+        // message to send
+        .send("foo"))
+
   // You can also use feeder
   //
   //val scn = scenario("Kafka Test")
