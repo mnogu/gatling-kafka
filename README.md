@@ -90,4 +90,6 @@ After starting Apache Kafka server, run a stress test:
 
     $ bin/gatling.sh
 
+## License
 
+Apache License, Version 2.0
