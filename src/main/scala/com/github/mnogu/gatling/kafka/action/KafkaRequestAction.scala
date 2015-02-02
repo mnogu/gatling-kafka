@@ -32,9 +32,24 @@ class KafkaRequestAction(
 
   def executeOrFail(session: Session): Validation[Unit] = {
     kafkaAttributes.requestName(session).flatMap { resolvedRequestName =>
+      val payload = kafkaAttributes.payload
 
-      val outcome = sendRequest(
-        resolvedRequestName, producer, kafkaAttributes.payload, session)
+      val outcome = kafkaAttributes.key match {
+        case Some(k) => k(session).flatMap { resolvedKey =>
+          sendRequest(
+            resolvedRequestName,
+            producer,
+            resolvedKey.getBytes,
+            payload,
+            session)
+        }
+        case None => sendRequest(
+          resolvedRequestName,
+          producer,
+          null,
+          payload,
+          session)
+      }
       outcome.onFailure(
         errorMessage => KafkaRequestAction.reportUnbuildableRequest(
           resolvedRequestName, session, errorMessage))
@@ -45,12 +60,13 @@ class KafkaRequestAction(
   private def sendRequest(
       requestName: String,
       producer: Producer,
+      key: Array[Byte],
       payload: Expression[String],
       session: Session): Validation[Unit] = {
 
     payload(session).map { resolvedPayload =>
       val record = new ProducerRecord(
-        kafkaProtocol.topic, resolvedPayload.getBytes)
+        kafkaProtocol.topic, key, resolvedPayload.getBytes)
 
       val requestStartDate = nowMillis
       val requestEndDate = nowMillis
