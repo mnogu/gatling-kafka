@@ -112,7 +112,7 @@ class KafkaSimulation extends Simulation {
     .feed(csv("test.csv").circular)
     // You can also set the key that will be included in the record.
     //
-    // The contents of the CSV above would be like this:
+    // The contents of the CSV file above would be like this:
     //   key,value
     //   k1,v1
     //   k2,v2
