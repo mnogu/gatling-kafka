@@ -82,7 +82,45 @@ class KafkaSimulation extends Simulation {
   //
   //val scn = scenario("Kafka Test")
   //  .feed(csv("test.csv").circular)
-  //  .exec(kafka("request").send("${foo}"))
+  //  .exec(kafka("request").send("${value}"))
+
+  setUp(
+    scn
+      .inject(constantUsersPerSec(10) during(90 seconds)))
+    .protocols(kafkaConf)
+}
+```
+
+Here is another sample simulation file:
+
+```scala
+import io.gatling.core.Predef._
+import org.apache.kafka.clients.producer.ProducerConfig
+import scala.concurrent.duration._
+
+import com.github.mnogu.gatling.kafka.Predef._
+
+class KafkaSimulation extends Simulation {
+  val kafkaConf = kafka
+    .topic("test")
+    .properties(
+      Map(
+        ProducerConfig.ACKS_CONFIG -> "1",
+        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092"))
+
+  val scn = scenario("Kafka Test")
+    .feed(csv("test.csv").circular)
+    // You can also set the key that will be included in the record.
+    //
+    // The contents of the CSV above would be like this:
+    //   key,value
+    //   k1,v1
+    //   k2,v2
+    //   k3,v3
+    //   ...
+    //
+    // And each line corresponds to a record sent to Kafka.
+    .exec(kafka("request").send("${key}", "${value}"))
 
   setUp(
     scn
