@@ -15,7 +15,7 @@ and doesn't support the Kafka consumer API.
 
 ### Creating a jar file
 
-Install sbt if you don't have. And create a jar file:
+Install sbt 0.13 if you don't have. And create a jar file:
 
     $ sbt assembly
 
