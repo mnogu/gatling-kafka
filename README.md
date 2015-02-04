@@ -34,6 +34,8 @@ to
 
 before running `sbt assembly`.
 
+Note that Apache Kafka 0.8.1.1 or below doesn't contain kafka-clients library.
+
 ### Putting the jar file to lib directory
 
 Put the jar file to `lib` directory in Gatling:
@@ -45,7 +47,6 @@ to the jar file, you also need to copy kafka-clients library to `lib` directory:
 
     $ cp /path/to/kafka-clients-*.jar /path/to/gatling-charts-highcharts-bundle-2.1.3/lib
 
-Note that Apache Kafka 0.8.1.1 or below doesn't contain kafka-clients library.
 
 ###  Creating a simulation file
 
