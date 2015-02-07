@@ -19,7 +19,8 @@ class KafkaRequestActionBuilder(kafkaAttributes: KafkaAttributes)
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val kafkaProtocol = protocols.getProtocol[KafkaProtocol].getOrElse(
       throw new UnsupportedOperationException("Kafka Protocol wasn't registered"))
-    val producer = new KafkaProducer(kafkaProtocol.properties.asJava)
+    val producer = new KafkaProducer[Array[Byte], Array[Byte]](
+      kafkaProtocol.properties.asJava)
     actor(actorName("kafkaRequest"))(new KafkaRequestAction(
       producer, kafkaAttributes, kafkaProtocol, next))
   }

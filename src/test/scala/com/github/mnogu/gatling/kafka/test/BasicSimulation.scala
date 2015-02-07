@@ -12,7 +12,11 @@ class BasicSimulation extends Simulation {
     .properties(
       Map(
         ProducerConfig.ACKS_CONFIG -> "1",
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092"))
+        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092",
+        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG ->
+          "org.apache.kafka.common.serialization.ByteArraySerializer",
+        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG ->
+          "org.apache.kafka.clients.producer.ByteArraySerializer"))
 
   val scn = scenario("Kafka Test")
     .exec(kafka("request").send("foo"))

@@ -24,7 +24,7 @@ object KafkaRequestAction extends DataWriterClient {
 }
 
 class KafkaRequestAction(
-  val producer: KafkaProducer,
+  val producer: KafkaProducer[Array[Byte], Array[Byte]],
   val kafkaAttributes: KafkaAttributes,
   val kafkaProtocol: KafkaProtocol,
   val next: ActorRef)
@@ -59,13 +59,13 @@ class KafkaRequestAction(
 
   private def sendRequest(
       requestName: String,
-      producer: Producer,
+      producer: Producer[Array[Byte], Array[Byte]],
       key: Array[Byte],
       payload: Expression[String],
       session: Session): Validation[Unit] = {
 
     payload(session).map { resolvedPayload =>
-      val record = new ProducerRecord(
+      val record = new ProducerRecord[Array[Byte], Array[Byte]](
         kafkaProtocol.topic, key, resolvedPayload.getBytes)
 
       val requestStartDate = nowMillis

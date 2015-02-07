@@ -23,13 +23,13 @@ If you don't want to include kafka-clients library to the jar file,
 change a line on kafka-clients in [`build.sbt`](build.sbt) from
 
 ```scala
-("org.apache.kafka" % "kafka-clients" % "0.8.2-beta")
+("org.apache.kafka" % "kafka-clients" % "0.8.2.0")
 ```
 
 to
 
 ```scala
-("org.apache.kafka" % "kafka-clients" % "0.8.2-beta" % "provided")
+("org.apache.kafka" % "kafka-clients" % "0.8.2.0" % "provided")
 ```
 
 before running `sbt assembly`.
@@ -71,7 +71,12 @@ class KafkaSimulation extends Simulation {
       Map(
         ProducerConfig.ACKS_CONFIG -> "1",
         // list of Kafka broker hostname and port pairs
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092"))
+        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092",
+        // Required since Apache Kafka 0.8.2.0
+        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG ->
+          "org.apache.kafka.common.serialization.ByteArraySerializer",
+        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG ->
+          "org.apache.kafka.common.serialization.ByteArraySerializer"))
 
   val scn = scenario("Kafka Test")
     .exec(
@@ -107,7 +112,11 @@ class KafkaSimulation extends Simulation {
     .properties(
       Map(
         ProducerConfig.ACKS_CONFIG -> "1",
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092"))
+        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092",
+        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG ->
+          "org.apache.kafka.common.serialization.ByteArraySerializer",
+        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG ->
+          "org.apache.kafka.common.serialization.ByteArraySerializer"))
 
   val scn = scenario("Kafka Test")
     .feed(csv("test.csv").circular)
