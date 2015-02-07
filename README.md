@@ -26,6 +26,8 @@ change the following line in [`build.sbt`](build.sbt):
 "io.gatling" % "gatling-core" % "2.1.3" % "provided",
 ```
 
+and run `sbt assembly`.
+
 If you don't want to include kafka-clients library to the jar file,
 change a line on kafka-clients in [`build.sbt`](build.sbt) from
 
@@ -39,7 +41,7 @@ to
 ("org.apache.kafka" % "kafka-clients" % "0.8.2.0" % "provided")
 ```
 
-before running `sbt assembly`.
+and run `sbt assembly`.
 
 Note that Apache Kafka 0.8.1.1 or below doesn't contain kafka-clients library.
 
