@@ -19,6 +19,13 @@ Install sbt 0.13 if you don't have. And create a jar file:
 
     $ sbt assembly
 
+If you want to change the version of Gatling used to create a jar file,
+change the following line in [`build.sbt`](build.sbt):
+
+```scala
+"io.gatling" % "gatling-core" % "2.1.3" % "provided",
+```
+
 If you don't want to include kafka-clients library to the jar file,
 change a line on kafka-clients in [`build.sbt`](build.sbt) from
 
