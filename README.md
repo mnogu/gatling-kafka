@@ -49,17 +49,17 @@ Note that Apache Kafka 0.8.1.1 or below doesn't contain kafka-clients library.
 
 Put the jar file to `lib` directory in Gatling:
 
-    $ cp target/scala-2.11/gatling-kafka-assembly-*.jar /path/to/gatling-charts-highcharts-bundle-2.1.3/lib
+    $ cp target/scala-2.11/gatling-kafka-assembly-*.jar /path/to/gatling-charts-highcharts-bundle-2.1.*/lib
 
 If you edited `build.sbt` in order not to include kafka-clients library
 to the jar file, you also need to copy kafka-clients library to `lib` directory:
 
-    $ cp /path/to/kafka-clients-*.jar /path/to/gatling-charts-highcharts-bundle-2.1.3/lib
+    $ cp /path/to/kafka-clients-*.jar /path/to/gatling-charts-highcharts-bundle-2.1.*/lib
 
 
 ###  Creating a simulation file
 
-    $ cd /path/to/gatling-charts-highcharts-bundle-2.1.3
+    $ cd /path/to/gatling-charts-highcharts-bundle-2.1.*
     $ vi user-files/simulations/KafkaSimulation.scala
 
 Here is a sample simulation file:
