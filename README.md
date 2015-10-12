@@ -1,6 +1,6 @@
 # Gatling-Kafka
 
-An unofficial [Gatling](http://gatling.io/) stress test plugin
+An unofficial [Gatling](http://gatling.io/) 2.1 stress test plugin
 for [Apache Kafka](http://kafka.apache.org/) 0.8 protocol.
 
 This plugin supports the Kafka producer API only
