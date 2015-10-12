@@ -4,7 +4,7 @@ import io.gatling.core.config.Protocol
 
 object KafkaProtocol {
   val DefaultKafkaProtocol = new KafkaProtocol(
-    topic = new String(),
+    topic = "",
     properties = Map())
 }
 
