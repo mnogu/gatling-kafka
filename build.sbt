@@ -1,15 +1,14 @@
+organization := "com.github.mnogu"
+
 name := "gatling-kafka"
 
 version := "0.0.7-SNAPSHOT"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-  "io.gatling" % "gatling-core" % "2.1.3" % "provided",
-  // Gatling 2.1.3 depends on Scala 2.11
-  // and Apache Kafka 0.8.1.1 doesn't support Scala 2.11
-  ("org.apache.kafka" % "kafka-clients" % "0.8.2.0")
-    // Gatling contains slf4j-api
+  "io.gatling" % "gatling-core" % "2.1.7" % "provided",
+  ("org.apache.kafka" % "kafka-clients" % "0.8.2.2")
     .exclude("org.slf4j", "slf4j-api")
 )
 
