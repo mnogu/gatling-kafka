@@ -1,8 +1,8 @@
-organization := "gatling-kafka"
+organization := "com.github.mnogu"
 
 name := "gatling-kafka"
 
-version := "0.0.8-SNAPSHOT"
+version := "0.0.7-SNAPSHOT"
 
 scalaVersion := "2.11.7"
 
