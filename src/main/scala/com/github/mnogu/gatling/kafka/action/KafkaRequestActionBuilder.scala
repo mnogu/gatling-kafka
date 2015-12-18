@@ -10,7 +10,7 @@ import org.apache.kafka.clients.producer.KafkaProducer
 
 import scala.collection.JavaConverters._
 
-class KafkaRequestActionBuilder(kafkaAttributes: KafkaAttributes)
+class KafkaRequestActionBuilder[K,V](kafkaAttributes: KafkaAttributes[K,V])
   extends ActionBuilder {
 
   override def registerDefaultProtocols(protocols: Protocols): Protocols =
@@ -19,7 +19,7 @@ class KafkaRequestActionBuilder(kafkaAttributes: KafkaAttributes)
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val kafkaProtocol = protocols.getProtocol[KafkaProtocol].getOrElse(
       throw new UnsupportedOperationException("Kafka Protocol wasn't registered"))
-    val producer = new KafkaProducer[Array[Byte], Array[Byte]](
+    val producer = new KafkaProducer[K,V](
       kafkaProtocol.properties.asJava)
     actor(actorName("kafkaRequest"))(new KafkaRequestAction(
       producer, kafkaAttributes, kafkaProtocol, next))

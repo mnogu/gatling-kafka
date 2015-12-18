@@ -54,6 +54,8 @@ crashlytics-build.properties
 
 # sbt specific
 .cache
+.cache-main
+.cache-tests
 .history
 .lib/
 dist/*
@@ -66,5 +68,8 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
+.project
+.classpath
+.settings/*
 
 

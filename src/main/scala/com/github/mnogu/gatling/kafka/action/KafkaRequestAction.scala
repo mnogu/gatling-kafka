@@ -23,9 +23,9 @@ object KafkaRequestAction extends DataWriterClient {
   }
 }
 
-class KafkaRequestAction(
-  val producer: KafkaProducer[Array[Byte], Array[Byte]],
-  val kafkaAttributes: KafkaAttributes,
+class KafkaRequestAction[K,V](
+  val producer: KafkaProducer[K,V],
+  val kafkaAttributes: KafkaAttributes[K,V],
   val kafkaProtocol: KafkaProtocol,
   val next: ActorRef)
   extends Interruptable with Failable with DataWriterClient {
@@ -39,34 +39,36 @@ class KafkaRequestAction(
           sendRequest(
             resolvedRequestName,
             producer,
-            resolvedKey.getBytes,
+            Some(resolvedKey),
             payload,
             session)
         }
         case None => sendRequest(
           resolvedRequestName,
           producer,
-          null,
+          None,
           payload,
           session)
       }
+      
       outcome.onFailure(
         errorMessage => KafkaRequestAction.reportUnbuildableRequest(
           resolvedRequestName, session, errorMessage))
       outcome
     }
   }
-
   private def sendRequest(
       requestName: String,
-      producer: Producer[Array[Byte], Array[Byte]],
-      key: Array[Byte],
-      payload: Expression[String],
+      producer: Producer[K,V],
+      key: Option[K],
+      payload: Expression[V],
       session: Session): Validation[Unit] = {
 
     payload(session).map { resolvedPayload =>
-      val record = new ProducerRecord[Array[Byte], Array[Byte]](
-        kafkaProtocol.topic, key, resolvedPayload.getBytes)
+      val record = key match {
+        case Some(k) => new ProducerRecord[K,V](kafkaProtocol.topic, k, resolvedPayload)
+        case None => new ProducerRecord[K,V](kafkaProtocol.topic, resolvedPayload)
+      }
 
       val requestStartDate = nowMillis
       val requestEndDate = nowMillis
