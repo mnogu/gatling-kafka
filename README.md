@@ -67,7 +67,7 @@ You can file sample simulation files in the [test directory](src/test/scala/com/
 Among the files, [BasicSimulation.scala](src/test/scala/com/github/mnogu/gatling/kafka/test/BasicSimulation.scala) would be a good start point.
 
 Note that gatling-kafka 0.1.x isn't compatible with 0.0.x.
-See the [README.md in the 0.0.6 release](gatling-kafka/blob/0.0.6/README.md)
+See the [README.md in the 0.0.6 release](https://github.com/mnogu/gatling-kafka/blob/0.0.6/README.md)
 if you are using 0.0.x.
 
 ### Running a stress test
