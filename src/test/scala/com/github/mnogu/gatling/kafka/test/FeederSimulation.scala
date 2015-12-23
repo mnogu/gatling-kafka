@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 
 import com.github.mnogu.gatling.kafka.Predef._
 
-class BasicSimulation extends Simulation {
+class FeederSimulation extends Simulation {
   val kafkaConf = kafka
     .topic("test")
     .properties(
@@ -19,7 +19,8 @@ class BasicSimulation extends Simulation {
           "org.apache.kafka.common.serialization.StringSerializer"))
 
   val scn = scenario("Kafka Test")
-    .exec(kafka("request").send[String]("foo"))
+    .feed(csv("test.csv").circular)
+    .exec(kafka("request").send[String]("${foo}"))
 
   setUp(
     scn
