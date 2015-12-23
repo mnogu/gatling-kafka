@@ -14,6 +14,6 @@ case class KafkaRequestBuilder(requestName: Expression[String]) {
   def send[K,V](key: Expression[K], payload: Expression[V]): KafkaRequestActionBuilder[K,V] =
     send(payload, Some(key))
 
-  private def send[K,V](payload: Expression[V], key: Option[Expression[K]]): KafkaRequestActionBuilder[K,V] =
+  private def send[K,V](payload: Expression[V], key: Option[Expression[K]]) =
     new KafkaRequestActionBuilder(KafkaAttributes(requestName, key, payload))
 }
