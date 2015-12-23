@@ -64,7 +64,9 @@ to the jar file, you also need to copy kafka-clients library to `lib` directory:
     $ vi user-files/simulations/KafkaSimulation.scala
 
 You can find sample simulation files in the [test directory](src/test/scala/com/github/mnogu/gatling/kafka/test).
-Among the files, [BasicSimulation.scala](src/test/scala/com/github/mnogu/gatling/kafka/test/BasicSimulation.scala) would be a good start point.
+Among these files, [BasicSimulation.scala](src/test/scala/com/github/mnogu/gatling/kafka/test/BasicSimulation.scala) would be a good start point.
+Make sure that replace `BasicSimulation` with `KafkaSimulation` in `BasicSimulation.scala`
+if your simulation filename is `KafkaSimulation.scala`.
 
 Note that gatling-kafka 0.1.x isn't compatible with 0.0.x.
 See the [README.md in the 0.0.6 release](https://github.com/mnogu/gatling-kafka/blob/0.0.6/README.md)
