@@ -63,91 +63,12 @@ to the jar file, you also need to copy kafka-clients library to `lib` directory:
     $ cd /path/to/gatling-charts-highcharts-bundle-2.1.*
     $ vi user-files/simulations/KafkaSimulation.scala
 
-Here is a sample simulation file:
+You can file sample simulation files in the [test directory](src/test/scala/com/github/mnogu/gatling/kafka/test).
+Among the files, [BasicSimulation.scala](src/test/scala/com/github/mnogu/gatling/kafka/test/BasicSimulation.scala) would be a good start point.
 
-```scala
-import io.gatling.core.Predef._
-import org.apache.kafka.clients.producer.ProducerConfig
-import scala.concurrent.duration._
-
-import com.github.mnogu.gatling.kafka.Predef._
-
-class KafkaSimulation extends Simulation {
-  val kafkaConf = kafka
-    // Kafka topic name
-    .topic("test")
-    // Kafka producer configs
-    .properties(
-      Map(
-        ProducerConfig.ACKS_CONFIG -> "1",
-        // list of Kafka broker hostname and port pairs
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092",
-        // Required since Apache Kafka 0.8.2.0
-        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG ->
-          "org.apache.kafka.common.serialization.ByteArraySerializer",
-        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG ->
-          "org.apache.kafka.common.serialization.ByteArraySerializer"))
-
-  val scn = scenario("Kafka Test")
-    .exec(
-      kafka("request")
-        // message to send
-        .send("foo"))
-
-  // You can also use feeder
-  //
-  //val scn = scenario("Kafka Test")
-  //  .feed(csv("test.csv").circular)
-  //  .exec(kafka("request").send("${value}"))
-
-  setUp(
-    scn
-      .inject(constantUsersPerSec(10) during(90 seconds)))
-    .protocols(kafkaConf)
-}
-```
-
-Here is another sample simulation file:
-
-```scala
-import io.gatling.core.Predef._
-import org.apache.kafka.clients.producer.ProducerConfig
-import scala.concurrent.duration._
-
-import com.github.mnogu.gatling.kafka.Predef._
-
-class KafkaSimulation extends Simulation {
-  val kafkaConf = kafka
-    .topic("test")
-    .properties(
-      Map(
-        ProducerConfig.ACKS_CONFIG -> "1",
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092",
-        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG ->
-          "org.apache.kafka.common.serialization.ByteArraySerializer",
-        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG ->
-          "org.apache.kafka.common.serialization.ByteArraySerializer"))
-
-  val scn = scenario("Kafka Test")
-    .feed(csv("test.csv").circular)
-    // You can also set the key that will be included in the record.
-    //
-    // The content of the CSV file above would be like this:
-    //   key,value
-    //   k1,v1
-    //   k2,v2
-    //   k3,v3
-    //   ...
-    //
-    // And each line corresponds to a record sent to Kafka.
-    .exec(kafka("request").send("${key}", "${value}"))
-
-  setUp(
-    scn
-      .inject(constantUsersPerSec(10) during(90 seconds)))
-    .protocols(kafkaConf)
-}
-```
+Note that gatling-kafka 0.1.x isn't compatible with 0.0.x.
+See the [README.md in the 0.0.6 release](gatling-kafka/blob/0.0.6/README.md)
+if you are using 0.0.x.
 
 ### Running a stress test
 
