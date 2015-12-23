@@ -19,6 +19,7 @@ class FeederSimulation extends Simulation {
           "org.apache.kafka.common.serialization.StringSerializer"))
 
   val scn = scenario("Kafka Test")
+    // You can also use feeder
     .feed(csv("test.csv").circular)
     .exec(kafka("request").send[String]("${foo}"))
 
