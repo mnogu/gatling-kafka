@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
 class KafkaRequestActionBuilder[K,V](kafkaAttributes: KafkaAttributes[K,V]) extends ActionBuilder {
 
   override def build( ctx: ScenarioContext, next: Action ): Action = {
-    import ctx.{protocolComponentsRegistry, system, coreComponents}
+    import ctx.{protocolComponentsRegistry, system, coreComponents, throttled}
 
     val kafkaComponents: KafkaComponents = protocolComponentsRegistry.components(KafkaProtocol.KafkaProtocolKey)
 
@@ -26,6 +26,7 @@ class KafkaRequestActionBuilder[K,V](kafkaAttributes: KafkaAttributes[K,V]) exte
       kafkaAttributes,
       coreComponents,
       kafkaComponents.kafkaProtocol,
+      throttled,
       next
     )
 

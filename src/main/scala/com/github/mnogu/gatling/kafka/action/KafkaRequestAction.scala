@@ -13,44 +13,32 @@ import io.gatling.core.stats.message.ResponseTimings
 import org.apache.kafka.clients.producer._
 
 
-
 class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
                                val kafkaAttributes: KafkaAttributes[K,V],
                                val coreComponents: CoreComponents,
                                val kafkaProtocol: KafkaProtocol,
+                               val throttled: Boolean,
                                val next: Action )
   extends ExitableAction with NameGen {
 
   val statsEngine = coreComponents.statsEngine
-
   override val name = genName("kafkaRequest")
 
   override def execute(session: Session): Unit = recover(session) {
 
-    kafkaAttributes.requestName(session).flatMap { resolvedRequestName =>
-      val payload = kafkaAttributes.payload
+    kafkaAttributes requestName session flatMap { requestName =>
 
-      val outcome = kafkaAttributes.key match {
-        case Some(k) => k(session).flatMap { resolvedKey =>
-          sendRequest(
-            resolvedRequestName,
-            producer,
-            Some(resolvedKey),
-            payload,
-            session )
-        }
-        case None =>
-          sendRequest(
-            resolvedRequestName,
-            producer,
-            None,
-            payload,
-            session )
-      }
+      val outcome =
+        sendRequest(
+          requestName,
+          producer,
+          kafkaAttributes,
+          throttled,
+          session)
 
       outcome.onFailure(
         errorMessage =>
-          statsEngine.reportUnbuildableRequest(session, resolvedRequestName, errorMessage)
+          statsEngine.reportUnbuildableRequest(session, requestName, errorMessage)
       )
 
       outcome
@@ -61,14 +49,17 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
 
   private def sendRequest( requestName: String,
                            producer: Producer[K,V],
-                           key: Option[K],
-                           payload: Expression[V],
+                           kafkaAttributes: KafkaAttributes[K,V],
+                           throttled: Boolean,
                            session: Session ): Validation[Unit] = {
 
-    payload(session).map { resolvedPayload =>
-      val record = key match {
-        case Some(k) => new ProducerRecord[K,V](kafkaProtocol.topic, k, resolvedPayload)
-        case None => new ProducerRecord[K,V](kafkaProtocol.topic, resolvedPayload)
+      kafkaAttributes payload session map { payload =>
+
+      val record = kafkaAttributes.key match {
+        case Some(k) =>
+          new ProducerRecord[K, V](kafkaProtocol.topic, k(session).get, payload)
+        case None =>
+          new ProducerRecord[K, V](kafkaProtocol.topic, payload)
       }
 
       val requestStartDate = nowMillis
@@ -87,13 +78,17 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
             if (e == null) None else Some(e.getMessage)
           )
 
-          next ! session
+          if (throttled) {
+            coreComponents.throttler.throttle(session.scenario, () => next ! session)
+          } else {
+            next ! session
+          }
 
         }
-
       })
 
     }
+
   }
 
 }
