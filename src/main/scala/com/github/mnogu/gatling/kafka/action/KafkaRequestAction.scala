@@ -1,104 +1,94 @@
 package com.github.mnogu.gatling.kafka.action
 
-import akka.actor.ActorRef
-
-import com.github.mnogu.gatling.kafka.config.KafkaProtocol
+import com.github.mnogu.gatling.kafka.protocol.KafkaProtocol
 import com.github.mnogu.gatling.kafka.request.builder.KafkaAttributes
-import io.gatling.core.action.{Failable, Interruptable}
-import io.gatling.core.result.message.{KO, OK}
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.action.{Action, ExitableAction}
+import io.gatling.commons.stats.{KO, OK}
 import io.gatling.core.session._
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Validation
+import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.validation.Validation
+import io.gatling.core.CoreComponents
+import io.gatling.core.util.NameGen
+import io.gatling.core.stats.message.ResponseTimings
 import org.apache.kafka.clients.producer._
 
-object KafkaRequestAction extends DataWriterClient {
-  def reportUnbuildableRequest(
-      requestName: String,
-      session: Session,
-      errorMessage: String): Unit = {
-    val now = nowMillis
-    writeRequestData(
-      session, requestName, now, now, now, now, KO, Some(errorMessage))
-  }
-}
 
-class KafkaRequestAction[K,V](
-  val producer: KafkaProducer[K,V],
-  val kafkaAttributes: KafkaAttributes[K,V],
-  val kafkaProtocol: KafkaProtocol,
-  val next: ActorRef)
-  extends Interruptable with Failable with DataWriterClient {
+class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
+                               val kafkaAttributes: KafkaAttributes[K,V],
+                               val coreComponents: CoreComponents,
+                               val kafkaProtocol: KafkaProtocol,
+                               val throttled: Boolean,
+                               val next: Action )
+  extends ExitableAction with NameGen {
 
-  def executeOrFail(session: Session): Validation[Unit] = {
-    kafkaAttributes.requestName(session).flatMap { resolvedRequestName =>
-      val payload = kafkaAttributes.payload
+  val statsEngine = coreComponents.statsEngine
+  override val name = genName("kafkaRequest")
 
-      val outcome = kafkaAttributes.key match {
-        case Some(k) => k(session).flatMap { resolvedKey =>
-          sendRequest(
-            resolvedRequestName,
-            producer,
-            Some(resolvedKey),
-            payload,
-            session)
-        }
-        case None => sendRequest(
-          resolvedRequestName,
+  override def execute(session: Session): Unit = recover(session) {
+
+    kafkaAttributes requestName session flatMap { requestName =>
+
+      val outcome =
+        sendRequest(
+          requestName,
           producer,
-          None,
-          payload,
+          kafkaAttributes,
+          throttled,
           session)
-      }
-      
-      outcome.onFailure(
-        errorMessage => KafkaRequestAction.reportUnbuildableRequest(
-          resolvedRequestName, session, errorMessage))
-      outcome
-    }
-  }
-  private def sendRequest(
-      requestName: String,
-      producer: Producer[K,V],
-      key: Option[K],
-      payload: Expression[V],
-      session: Session): Validation[Unit] = {
 
-    payload(session).map { resolvedPayload =>
-      val record = key match {
-        case Some(k) => new ProducerRecord[K,V](kafkaProtocol.topic, k, resolvedPayload)
-        case None => new ProducerRecord[K,V](kafkaProtocol.topic, resolvedPayload)
+      outcome.onFailure(
+        errorMessage =>
+          statsEngine.reportUnbuildableRequest(session, requestName, errorMessage)
+      )
+
+      outcome
+
+    }
+
+  }
+
+  private def sendRequest( requestName: String,
+                           producer: Producer[K,V],
+                           kafkaAttributes: KafkaAttributes[K,V],
+                           throttled: Boolean,
+                           session: Session ): Validation[Unit] = {
+
+      kafkaAttributes payload session map { payload =>
+
+      val record = kafkaAttributes.key match {
+        case Some(k) =>
+          new ProducerRecord[K, V](kafkaProtocol.topic, k(session).get, payload)
+        case None =>
+          new ProducerRecord[K, V](kafkaProtocol.topic, payload)
       }
 
       val requestStartDate = nowMillis
-      val requestEndDate = nowMillis
 
-      // send the request
       producer.send(record, new Callback() {
-        override def onCompletion(m: RecordMetadata, e: Exception): Unit = {
-          val responseStartDate = nowMillis
-          val responseEndDate = nowMillis
 
-          // log the outcome
-          writeRequestData(
+        override def onCompletion(m: RecordMetadata, e: Exception): Unit = {
+
+          val requestEndDate = nowMillis
+          statsEngine.logResponse(
             session,
             requestName,
-            requestStartDate,
-            requestEndDate,
-            responseStartDate,
-            responseEndDate,
+            ResponseTimings(startTimestamp = requestStartDate, endTimestamp = requestEndDate),
             if (e == null) OK else KO,
-            if (e == null) None else Some(e.getMessage))
+            None,
+            if (e == null) None else Some(e.getMessage)
+          )
+
+          if (throttled) {
+            coreComponents.throttler.throttle(session.scenario, () => next ! session)
+          } else {
+            next ! session
+          }
+
         }
       })
 
-      // calling the next action in the chain
-      next ! session
     }
+
   }
 
-  override def postStop(): Unit = {
-    super.postStop()
-    producer.close()
-  }
 }
