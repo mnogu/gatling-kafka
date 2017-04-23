@@ -1,4 +1,4 @@
-# Gatling-Kafka
+# Gatling-Kafka [![Build Status](https://travis-ci.org/mnogu/gatling-kafka.svg?branch=master)](https://travis-ci.org/mnogu/gatling-kafka)
 
 An unofficial [Gatling](http://gatling.io/) 2.2 stress test plugin
 for [Apache Kafka](http://kafka.apache.org/) 0.10 protocol.
