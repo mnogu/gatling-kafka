@@ -56,11 +56,16 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
 
       kafkaAttributes payload session map { payload =>
 
+      val topic = kafkaAttributes.topic match {
+        case Some(k) => k(session).toOption.get
+        case None => kafkaProtocol.topic
+      }
+
       val record = kafkaAttributes.key match {
         case Some(k) =>
-          new ProducerRecord[K, V](kafkaProtocol.topic, k(session).toOption.get, payload)
+          new ProducerRecord[K, V](topic, k(session).toOption.get, payload)
         case None =>
-          new ProducerRecord[K, V](kafkaProtocol.topic, payload)
+          new ProducerRecord[K, V](topic, payload)
       }
 
       val requestStartDate = clock.nowMillis
