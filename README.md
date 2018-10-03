@@ -1,7 +1,7 @@
 # Gatling-Kafka [![Build Status](https://travis-ci.org/mnogu/gatling-kafka.svg?branch=master)](https://travis-ci.org/mnogu/gatling-kafka)
 
 An unofficial [Gatling](http://gatling.io/) 2.2 stress test plugin
-for [Apache Kafka](http://kafka.apache.org/) 0.10 protocol.
+for [Apache Kafka](http://kafka.apache.org/) 1.0.1 protocol.
 
 This plugin supports the Kafka producer API only
 and doesn't support the Kafka consumer API.
