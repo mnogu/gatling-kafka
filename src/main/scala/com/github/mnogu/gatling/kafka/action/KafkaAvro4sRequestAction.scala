@@ -15,11 +15,9 @@ import io.gatling.core.util.NameGen
 import org.apache.kafka.clients.producer._
 import com.sksamuel.avro4s._
 import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
-import com.typesafe.scalalogging.LazyLogging
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Field
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.clients.producer.ProducerConfig
 
 import scala.util.{Failure, Success}
 
@@ -88,7 +86,7 @@ class KafkaAvro4sRequestAction[T](val producer: KafkaProducer[Nothing,GenericRec
 
         val json = payload.asInstanceOf[String]
 
-        logger.info(s"sendRequest received json: ${json}")
+        logger.debug(s"sendRequest received json: ${json}")
 
         // payload should be a json string
         val in = new ByteInputStream(json.getBytes("UTF-8"), json.size)
