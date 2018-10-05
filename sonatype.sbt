@@ -1,3 +1,4 @@
+/*
 sonatypeProfileName := "com.github.mnogu"
 
 pomExtra in Global := {
@@ -21,3 +22,4 @@ pomExtra in Global := {
     </developer>
   </developers>
 }
+*/
