@@ -5,7 +5,7 @@ import com.github.mnogu.gatling.kafka.request.builder.KafkaAttributes
 import io.gatling.core.action.{Action, ExitableAction}
 import io.gatling.commons.stats.{KO, OK}
 import io.gatling.core.session._
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.validation.Validation
 import io.gatling.core.CoreComponents
 import io.gatling.core.util.NameGen
@@ -22,6 +22,7 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
   extends ExitableAction with NameGen {
 
   val statsEngine = coreComponents.statsEngine
+  val clock = new DefaultClock
   override val name = genName("kafkaRequest")
 
   override def execute(session: Session): Unit = recover(session) {
@@ -57,22 +58,23 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
 
       val record = kafkaAttributes.key match {
         case Some(k) =>
-          new ProducerRecord[K, V](kafkaProtocol.topic, k(session).get, payload)
+          new ProducerRecord[K, V](kafkaProtocol.topic, k(session).toOption.get, payload)
         case None =>
           new ProducerRecord[K, V](kafkaProtocol.topic, payload)
       }
 
-      val requestStartDate = nowMillis
+      val requestStartDate = clock.nowMillis
 
       producer.send(record, new Callback() {
 
         override def onCompletion(m: RecordMetadata, e: Exception): Unit = {
 
-          val requestEndDate = nowMillis
+          val requestEndDate = clock.nowMillis
           statsEngine.logResponse(
             session,
             requestName,
-            ResponseTimings(startTimestamp = requestStartDate, endTimestamp = requestEndDate),
+            startTimestamp = requestStartDate,
+            endTimestamp = requestEndDate,
             if (e == null) OK else KO,
             None,
             if (e == null) None else Some(e.getMessage)

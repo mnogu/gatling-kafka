@@ -1,6 +1,5 @@
 package com.github.mnogu.gatling.kafka.protocol
 
-import akka.actor.ActorSystem
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{Protocol, ProtocolKey}
@@ -12,7 +11,7 @@ object KafkaProtocol {
     properties = Map()
   )
 
-  val KafkaProtocolKey = new ProtocolKey {
+  val KafkaProtocolKey = new ProtocolKey[KafkaProtocol, KafkaComponents] {
 
     type Protocol = KafkaProtocol
     type Components = KafkaComponents
@@ -21,7 +20,7 @@ object KafkaProtocol {
 
     def defaultProtocolValue(configuration: GatlingConfiguration): KafkaProtocol = KafkaProtocol(configuration)
 
-    def newComponents(system: ActorSystem, coreComponents: CoreComponents): KafkaProtocol => KafkaComponents = {
+    def newComponents(coreComponents: CoreComponents): KafkaProtocol => KafkaComponents = {
 
       kafkaProtocol => {
         val kafkaComponents = KafkaComponents (
