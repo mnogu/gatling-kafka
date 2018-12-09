@@ -13,13 +13,13 @@ import scala.collection.JavaConverters._
 class KafkaRequestActionBuilder[K,V](kafkaAttributes: KafkaAttributes[K,V]) extends ActionBuilder {
 
   override def build( ctx: ScenarioContext, next: Action ): Action = {
-    import ctx.{protocolComponentsRegistry, system, coreComponents, throttled}
+    import ctx.{protocolComponentsRegistry, coreComponents, throttled}
 
     val kafkaComponents: KafkaComponents = protocolComponentsRegistry.components(KafkaProtocol.KafkaProtocolKey)
 
     val producer = new KafkaProducer[K,V]( kafkaComponents.kafkaProtocol.properties.asJava )
 
-    system.registerOnTermination(producer.close())
+    coreComponents.actorSystem.registerOnTermination(producer.close())
 
     new KafkaRequestAction(
       producer,
