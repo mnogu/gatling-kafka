@@ -6,6 +6,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.structure.ScenarioContext
 import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.common.serialization.Serializer
 
 import scala.collection.JavaConverters._
 
@@ -16,8 +17,8 @@ class KafkaRequestActionBuilder[K,V](kafkaAttributes: KafkaAttributes[K,V]) exte
     import ctx.{protocolComponentsRegistry, coreComponents, throttled}
 
     val kafkaComponents: KafkaComponents = protocolComponentsRegistry.components(KafkaProtocol.KafkaProtocolKey)
-
-    val producer = new KafkaProducer[K,V]( kafkaComponents.kafkaProtocol.properties.asJava )
+    val protocol = kafkaComponents.kafkaProtocol
+    val producer = new KafkaProducer[K,V](protocol.properties.asJava, protocol.keySerializerOpt.orNull[Serializer[K]], protocol.valueSerializerOpt.orNull[Serializer[V]])
 
     coreComponents.actorSystem.registerOnTermination(producer.close())
 
