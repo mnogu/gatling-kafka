@@ -3,12 +3,15 @@ package com.github.mnogu.gatling.kafka.protocol
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{Protocol, ProtocolKey}
+import org.apache.kafka.common.serialization.Serializer
 
 object KafkaProtocol {
 
   def apply(configuration: GatlingConfiguration): KafkaProtocol = KafkaProtocol (
     topic = "",
-    properties = Map()
+    properties = Map(),
+    None,
+    None
   )
 
   val KafkaProtocolKey = new ProtocolKey[KafkaProtocol, KafkaComponents] {
@@ -35,8 +38,12 @@ object KafkaProtocol {
 
 case class KafkaProtocol(
   topic: String,
-  properties: Map[String, Object]) extends Protocol {
+  properties: Map[String, Object],
+  keySerializerOpt: Option[Serializer[_]],
+  valueSerializerOpt: Option[Serializer[_]]) extends Protocol {
 
   def topic(topic: String): KafkaProtocol = copy(topic = topic)
   def properties(properties: Map[String, Object]): KafkaProtocol = copy(properties = properties)
+  def keySerializer(keySerializer: Serializer[_]): KafkaProtocol = copy(keySerializerOpt = Some(keySerializer))
+  def valueSerializer(valueSerializer: Serializer[_]): KafkaProtocol = copy(valueSerializerOpt = Some(valueSerializer))
 }
