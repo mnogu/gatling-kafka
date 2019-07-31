@@ -2,14 +2,13 @@ package com.github.mnogu.gatling.kafka.action
 
 import com.github.mnogu.gatling.kafka.protocol.KafkaProtocol
 import com.github.mnogu.gatling.kafka.request.builder.KafkaAttributes
-import io.gatling.core.action.{Action, ExitableAction}
 import io.gatling.commons.stats.{KO, OK}
-import io.gatling.core.session._
 import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.validation.Validation
 import io.gatling.core.CoreComponents
+import io.gatling.core.action.{Action, ExitableAction}
+import io.gatling.core.session._
 import io.gatling.core.util.NameGen
-import io.gatling.core.stats.message.ResponseTimings
 import org.apache.kafka.clients.producer._
 
 
@@ -54,11 +53,11 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
                            throttled: Boolean,
                            session: Session ): Validation[Unit] = {
 
-      kafkaAttributes payload session map { payload =>
+    kafkaAttributes payload session map { payload =>
 
       val record = kafkaAttributes.key match {
         case Some(k) =>
-          new ProducerRecord[K, V](kafkaProtocol.topic, k(session).toOption.get, payload)
+          new ProducerRecord[K, V](kafkaProtocol.topic,null, k(session).toOption.get, payload, kafkaAttributes.headers )
         case None =>
           new ProducerRecord[K, V](kafkaProtocol.topic, payload)
       }
