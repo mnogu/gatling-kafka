@@ -10,6 +10,6 @@ object Predef {
 
   def kafka(implicit configuration: GatlingConfiguration) = KafkaProtocolBuilder(configuration)
 
-  def kafka(requestName: Expression[String]) = new KafkaRequestBuilder(requestName)
+  def kafka(requestName: Expression[String]) = KafkaRequestBuilder(requestName)
 
 }

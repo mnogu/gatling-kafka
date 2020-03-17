@@ -1,7 +1,7 @@
 # Gatling-Kafka [![Build Status](https://travis-ci.org/mnogu/gatling-kafka.svg?branch=master)](https://travis-ci.org/mnogu/gatling-kafka)
 
-An unofficial [Gatling](http://gatling.io/) 3.0.1 stress test plugin
-for [Apache Kafka](http://kafka.apache.org/) 1.1.0 protocol.
+An unofficial [Gatling](http://gatling.io/) 3.3.1 stress test plugin
+for [Apache Kafka](http://kafka.apache.org/) 2.4.0 protocol.
 
 This plugin supports the Kafka producer API only
 and doesn't support the Kafka consumer API.
@@ -24,7 +24,7 @@ If you want to change the version of Gatling used to create a jar file,
 change the following line in [`build.sbt`](build.sbt):
 
 ```scala
-"io.gatling" % "gatling-core" % "3.0.1" % "provided",
+"io.gatling" % "gatling-core" % "3.3.1" % "provided",
 ```
 
 and run `sbt assembly`.
@@ -33,13 +33,13 @@ If you don't want to include kafka-clients library to the jar file,
 change a line on kafka-clients in [`build.sbt`](build.sbt) from
 
 ```scala
-("org.apache.kafka" % "kafka-clients" % "1.1.0")
+("org.apache.kafka" % "kafka-clients" % "2.4.0")
 ```
 
 to
 
 ```scala
-("org.apache.kafka" % "kafka-clients" % "1.1.0" % "provided")
+("org.apache.kafka" % "kafka-clients" % "2.4.0" % "provided")
 ```
 
 and run `sbt assembly`.
@@ -48,17 +48,17 @@ and run `sbt assembly`.
 
 Put the jar file to `lib` directory in Gatling:
 
-    $ cp target/scala-2.12/gatling-kafka-assembly-*.jar /path/to/gatling-charts-highcharts-bundle-3.0.1.*/lib
+    $ cp target/scala-2.12/gatling-kafka-assembly-*.jar /path/to/gatling-charts-highcharts-bundle-3.3.1.*/lib
 
 If you edited `build.sbt` in order not to include kafka-clients library
 to the jar file, you also need to copy kafka-clients library to `lib` directory:
 
-    $ cp /path/to/kafka-clients-*.jar /path/to/gatling-charts-highcharts-bundle-3.0.1.*/lib
+    $ cp /path/to/kafka-clients-*.jar /path/to/gatling-charts-highcharts-bundle-3.3.1.*/lib
 
 
 ###  Creating a simulation file
 
-    $ cd /path/to/gatling-charts-highcharts-bundle-3.0.1.*
+    $ cd /path/to/gatling-charts-highcharts-bundle-3.3.1.*
     $ vi user-files/simulations/KafkaSimulation.scala
 
 You can find sample simulation files in the [test directory](src/test/scala/com/github/mnogu/gatling/kafka/test).
