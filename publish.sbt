@@ -13,7 +13,7 @@ ThisBuild / developers := List(
   )
 )
 
-ThisBuild / description := "Some descripiton about your project."
+ThisBuild / description := "A Gatling stress test plugin for Apache Kafka protocol"
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / homepage := Some(url("https://github.com/mnogu/gatling-kafka"))
 
