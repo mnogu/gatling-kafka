@@ -1,6 +1,6 @@
 # Gatling-Kafka ![](https://github.com/mnogu/gatling-kafka/workflows/Scala%20CI/badge.svg)
 
-An unofficial [Gatling](http://gatling.io/) 3.3.1 stress test plugin
+An unofficial [Gatling](http://gatling.io/) 3.4.2 stress test plugin
 for [Apache Kafka](http://kafka.apache.org/) 2.4.0 protocol.
 
 This plugin supports the Kafka producer API only
@@ -24,7 +24,7 @@ If you want to change the version of Gatling used to create a jar file,
 change the following line in [`build.sbt`](build.sbt):
 
 ```scala
-"io.gatling" % "gatling-core" % "3.3.1" % "provided",
+"io.gatling" % "gatling-core" % "3.4.2" % "provided",
 ```
 
 and run `sbt assembly`.
