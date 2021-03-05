@@ -34,6 +34,6 @@ class FeederKeyValueSimulation extends Simulation {
 
   setUp(
     scn
-      .inject(constantUsersPerSec(10) during(90 seconds)))
+      .inject(constantUsersPerSec(10) during(90.seconds)))
     .protocols(kafkaConf)
 }
