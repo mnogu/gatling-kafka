@@ -33,6 +33,6 @@ class ThrottledSimulation extends Simulation {
 
   setUp(
     scn.inject(atOnceUsers(10)))
-    .throttle(jumpToRps(10), holdFor(30 seconds))
+    .throttle(jumpToRps(10), holdFor(30.seconds))
     .protocols(kafkaConf)
 }

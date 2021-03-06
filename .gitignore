@@ -72,4 +72,10 @@ project/plugins/project/
 .classpath
 .settings/*
 
+# Metals and Bloop
+.bloop
+.metals
+metals.sbt
 
+# VS Code
+.vscode

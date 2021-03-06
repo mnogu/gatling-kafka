@@ -27,7 +27,7 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
 
   override def execute(session: Session): Unit = recover(session) {
 
-    kafkaAttributes requestName session flatMap { requestName =>
+    kafkaAttributes.requestName(session).flatMap{ requestName =>
 
       val outcome =
         sendRequest(
@@ -39,7 +39,7 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
 
       outcome.onFailure(
         errorMessage =>
-          statsEngine.reportUnbuildableRequest(session, requestName, errorMessage)
+          statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestName, errorMessage)
       )
 
       outcome
@@ -71,7 +71,8 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
 
           val requestEndDate = clock.nowMillis
           statsEngine.logResponse(
-            session,
+            session.scenario,
+            session.groups,
             requestName,
             startTimestamp = requestStartDate,
             endTimestamp = requestEndDate,
@@ -81,7 +82,7 @@ class KafkaRequestAction[K,V]( val producer: KafkaProducer[K,V],
           )
 
           if (throttled) {
-            coreComponents.throttler.throttle(session.scenario, () => next ! session)
+            coreComponents.throttler.map(_.throttle(session.scenario, () => next ! session))
           } else {
             next ! session
           }
